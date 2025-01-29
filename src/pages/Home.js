@@ -10,10 +10,26 @@ export default function Home() {
     loadUsers();
   }, []);
 
+
+
+
+
+  // const loadUsers = async () => {
+  //   const result = await axios.get("http://localhost:8080/users");
+  //   setTasks(result.data);
+  // };
+
   const loadUsers = async () => {
-    const result = await axios.get("http://localhost:8080/users");
-    setTasks(result.data);
+    try {
+      const baseUrl = process.env.REACT_APP_API_BASE_URL;
+
+      const result = await axios.get(`${baseUrl}/users`); // Use backticks for template string
+      setTasks(result.data);
+    } catch (error) {
+      console.error("Error loading users:", error.response || error.message);
+    }
   };
+
 
   const startEditing = (task) => {
     setEditingTask(task); // Set the task to be edited
@@ -28,10 +44,30 @@ export default function Home() {
     stopEditing(); // Exit edit mode
   };
 
+  // const deleteUser = async (id) => {
+  //   await axios.delete(`http://localhost:8080/user/${id}`)
+  //   loadUsers();
+  // };
+
   const deleteUser = async (id) => {
-    await axios.delete(`http://localhost:8080/user/${id}`)
-    loadUsers();
+    try {
+      const baseUrl = process.env.REACT_APP_API_BASE_URL;
+      await axios.delete(`${baseUrl}/user/${id}`);
+      loadUsers(); // Refresh the list after deletion
+    } catch (error) {
+      if (error.response) {
+        // Server responded with a status other than 2xx
+        console.error(`Error ${error.response.status}: ${error.response.data}`);
+      } else if (error.request) {
+        // No response received from server
+        console.error("No response received:", error.request);
+      } else {
+        // Other errors
+        console.error("Error:", error.message);
+      }
+    }
   };
+  
 
   return (
     <div className="container">
